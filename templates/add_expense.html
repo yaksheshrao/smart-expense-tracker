@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Add Expense - Smart Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="bi bi-plus-circle"></i> Add Expense</h2>
+        <p class="text-muted">Record a new expense to your tracker.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST" action="{{ url_for('add_expense') }}">
+                    <!-- Amount -->
+                    <div class="mb-3">
+                        <label for="amount" class="form-label fw-semibold">
+                            <i class="bi bi-currency-pound"></i> Amount *
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">£</span>
+                            <input type="number"
+                                   class="form-control form-control-lg"
+                                   id="amount"
+                                   name="amount"
+                                   step="0.01"
+                                   min="0.01"
+                                   placeholder="0.00"
+                                   required
+                                   autofocus>
+                        </div>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="mb-3">
+                        <label for="category" class="form-label fw-semibold">
+                            <i class="bi bi-tag"></i> Category *
+                        </label>
+                        <select class="form-select form-select-lg" id="category" name="category" required>
+                            <option value="" disabled selected>Select a category...</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat }}">{{ cat }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="mb-3">
+                        <label for="date" class="form-label fw-semibold">
+                            <i class="bi bi-calendar3"></i> Date *
+                        </label>
+                        <input type="date"
+                               class="form-control form-control-lg"
+                               id="date"
+                               name="date"
+                               value="{{ today }}"
+                               required>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <label for="description" class="form-label fw-semibold">
+                            <i class="bi bi-chat-text"></i> Description
+                            <span class="text-muted fw-normal">(optional)</span>
+                        </label>
+                        <input type="text"
+                               class="form-control"
+                               id="description"
+                               name="description"
+                               placeholder="What was this expense for?"
+                               maxlength="200">
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg px-5">
+                            <i class="bi bi-check-circle"></i> Save Expense
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Tips -->
+        <div class="card mt-3 border-0 bg-light">
+            <div class="card-body">
+                <h6 class="text-muted"><i class="bi bi-lightbulb"></i> Tips</h6>
+                <ul class="small text-muted mb-0">
+                    <li>Use decimal points for cents (e.g., 12.50)</li>
+                    <li>Pick the most specific category available</li>
+                    <li>Add a description to remember what it was for</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
