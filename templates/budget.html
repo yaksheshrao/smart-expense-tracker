@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Budget Settings - Smart Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="bi bi-piggy-bank"></i> Budget Settings</h2>
+        <p class="text-muted">Set monthly spending limits for each category. You'll get alerts at 80% and 100%.</p>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-sliders"></i> Monthly Budget Limits</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('budget') }}">
+                    <div class="row g-3">
+                        {% for category in categories %}
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">{{ category }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text">£</span>
+                                <input type="number"
+                                       class="form-control"
+                                       name="budget_{{ category }}"
+                                       step="0.01"
+                                       min="0"
+                                       placeholder="No limit"
+                                       value="{{ budgets.get(category, '') }}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            Leave a field empty to set no limit for that category.
+                        </small>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save"></i> Save Budgets
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- How alerts work -->
+        <div class="card mt-3 border-warning">
+            <div class="card-body">
+                <h6><i class="bi bi-bell"></i> How Budget Alerts Work</h6>
+                <div class="row text-center">
+                    <div class="col-4">
+                        <div class="badge bg-success p-2 mb-2">Under 80%</div>
+                        <p class="small text-muted mb-0">On track, no alert shown</p>
+                    </div>
+                    <div class="col-4">
+                        <div class="badge bg-warning text-dark p-2 mb-2">80% - 99%</div>
+                        <p class="small text-muted mb-0">Warning alert displayed</p>
+                    </div>
+                    <div class="col-4">
+                        <div class="badge bg-danger p-2 mb-2">100%+</div>
+                        <p class="small text-muted mb-0">Budget exceeded alert</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
