@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - Smart Expense Tracker{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h2><i class="bi bi-bar-chart-line"></i> Reports & Analytics</h2>
+        <p class="text-muted">Visualise your spending patterns over time.</p>
+    </div>
+    <div class="col-auto">
+        <a href="{{ url_for('export') }}" class="btn btn-success">
+            <i class="bi bi-download"></i> Export CSV
+        </a>
+    </div>
+</div>
+
+{% if category_totals %}
+<div class="row mb-4">
+    <!-- Pie Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-pie-chart"></i> Spending by Category</h5>
+            </div>
+            <div class="card-body">
+                <div id="pieChart" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bar Chart -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-bar-chart"></i> Monthly Spending Trend</h5>
+            </div>
+            <div class="card-body">
+                <div id="barChart" style="height: 350px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Category Breakdown Table -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-table"></i> Category Breakdown</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Category</th>
+                        <th class="text-end">Total Spent</th>
+                        <th class="text-end">% of Total</th>
+                        <th>Proportion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% set grand_total = category_totals | sum(attribute='total') %}
+                    {% for row in category_totals %}
+                    {% set pct = (row.total / grand_total * 100) if grand_total > 0 else 0 %}
+                    <tr>
+                        <td><span class="badge bg-secondary">{{ row.category }}</span></td>
+                        <td class="text-end fw-bold">£{{ "%.2f"|format(row.total) }}</td>
+                        <td class="text-end">{{ "%.1f"|format(pct) }}%</td>
+                        <td>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-primary" style="width: {{ pct }}%;"></div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot class="table-light">
+                    <tr>
+                        <td class="fw-bold">Grand Total</td>
+                        <td class="text-end fw-bold">£{{ "%.2f"|format(grand_total) }}</td>
+                        <td class="text-end">100%</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<div class="text-center py-5 text-muted">
+    <i class="bi bi-graph-up fs-1"></i>
+    <p class="mt-2">No expense data yet. <a href="{{ url_for('add_expense') }}">Start adding expenses!</a></p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    {% if category_totals %}
+    // Pie Chart
+    const categories = [{% for r in category_totals %}"{{ r.category }}"{% if not loop.last %},{% endif %}{% endfor %}];
+    const amounts = [{% for r in category_totals %}{{ r.total }}{% if not loop.last %},{% endif %}{% endfor %}];
+
+    Plotly.newPlot('pieChart', [{
+        type: 'pie',
+        labels: categories,
+        values: amounts,
+        hole: 0.4,
+        textinfo: 'percent+label'
+    }], {
+        margin: { t: 20, b: 20, l: 20, r: 20 },
+        showlegend: false,
+        paper_bgcolor: 'transparent'
+    }, { responsive: true });
+
+    // Bar Chart - Monthly
+    {% if monthly_totals %}
+    const months = [{% for m in monthly_totals %}"{{ m.month }}"{% if not loop.last %},{% endif %}{% endfor %}];
+    const monthlyAmounts = [{% for m in monthly_totals %}{{ m.total }}{% if not loop.last %},{% endif %}{% endfor %}];
+
+    Plotly.newPlot('barChart', [{
+        type: 'bar',
+        x: months,
+        y: monthlyAmounts,
+        marker: { color: '#0d6efd' },
+        text: monthlyAmounts.map(v => '£' + v.toFixed(2)),
+        textposition: 'auto'
+    }], {
+        margin: { t: 20, b: 40, l: 60, r: 20 },
+        xaxis: { title: 'Month' },
+        yaxis: { title: 'Amount (£)' },
+        paper_bgcolor: 'transparent',
+        plot_bgcolor: 'transparent'
+    }, { responsive: true });
+    {% endif %}
+    {% endif %}
+</script>
+{% endblock %}
